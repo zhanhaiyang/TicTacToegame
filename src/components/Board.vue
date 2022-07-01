@@ -1,8 +1,8 @@
 <template>
     <div>
-        <div class="status">当前玩家：{{currentPlayer}}</div>
+        <div class="title">{{isStop?'对局结束，获胜者为：'+currentPlayer:'当前玩家：'+currentPlayer}}</div>
         <div class="board-row" v-for="(row, index) in board" :key="index">
-            <Square v-for="item in row" :key="item" :value="item" />
+            <Square v-for="item in row" :key="item" :value="squares[item]" @click="handleClick(item)" />
         </div>
     </div>
 </template>
@@ -20,22 +20,66 @@ export default {
                 [0, 1, 2],
                 [3, 4, 5],
                 [6, 7, 8]
-            ]
+            ],
+            squares: Array(9).fill(null),
+            xIsNext: true,
+            isStop:false
         }
     },
     methods: {
+        handleClick(i) {
+            const squares = this.squares.slice();
+            if (this.win(squares)) {
+                alert('胜负已定！');
+                return;
+            }
+            if (squares[i]) {
+                alert('该位置已被占!');
+                return
+            }
+            squares[i] = this.xIsNext ? 'X' : 'O';
+            const winner = this.win(squares);
+            this.squares = squares;
+            if (winner) {
+                this.isStop = true;
+                alert('对局结束，获胜者: ' + winner)
+                return;
+            }
+            this.xIsNext = !this.xIsNext;
+            this.currentPlayer = this.xIsNext ? 'X' : 'O';
+        },
+        win(squares) {
+            //列举出赢的组合
+            const lines = [
+                [0, 1, 2],
+                [3, 4, 5],
+                [6, 7, 8],
+                [0, 3, 6],
+                [1, 4, 7],
+                [2, 5, 8],
+                [0, 4, 8],
+                [2, 4, 6],
+            ];
+            for (let i = 0; i < lines.length; i++) {
+                const [a, b, c] = lines[i];
+                if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+                    return squares[a];
+                }
+            }
+            return null;
+        }
     }
 }
 </script>
 
 <style>
-    .board-row:after {
-        clear: both;
-        content: "";
-        display: table;
-    }
+.board-row:after {
+    clear: both;
+    content: "";
+    display: table;
+}
 
-    .status {
-        margin-bottom: 10px;
-    }   
+.title {
+    margin-bottom: 10px;
+}
 </style>

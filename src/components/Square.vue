@@ -11,6 +11,9 @@ export default {
         return {}
     },
     methods: {
+        setValue() {
+            this.$emit('click')
+        }
     }
 }
 </script>
